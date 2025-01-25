@@ -1,66 +1,26 @@
-## Foundry
+# interop-lib
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+Subset of [interoperability](https://specs.optimism.io/interop/overview.html) related contract interfaces / libraries from the [Optimism monorepo](https://github.com/ethereum-optimism/optimism/tree/develop/packages/contracts-bedrock)
 
-Foundry consists of:
+## Installation
 
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+To install with [**Foundry**](https://github.com/foundry-rs/foundry):
 
-## Documentation
-
-https://book.getfoundry.sh/
-
-## Usage
-
-### Build
-
-```shell
-$ forge build
+```sh
+forge install vectorized/solady
 ```
 
-### Test
+## Interfaces
 
-```shell
-$ forge test
-```
+- [ICrossL2Inbox.sol](src/interfaces/ICrossL2Inbox.sol)
+- [IERC7802.sol](src/interfaces/IERC7802.sol)
+- [IETHLiquidity.sol](src/interfaces/IETHLiquidity.sol)
+- [IL2ToL2CrossDomainMessenger.sol](src/interfaces/IL2ToL2CrossDomainMessenger.sol)
+- [ISemver.sol](src/interfaces/ISemver.sol)
+- [ISuperchainTokenBridge.sol](src/interfaces/ISuperchainTokenBridge.sol)
+- [ISuperchainWETH.sol](src/interfaces/ISuperchainWETH.sol)
+- [IWETH98.sol](src/interfaces/IWETH98.sol)
 
-### Format
+## Libraries
 
-```shell
-$ forge fmt
-```
-
-### Gas Snapshots
-
-```shell
-$ forge snapshot
-```
-
-### Anvil
-
-```shell
-$ anvil
-```
-
-### Deploy
-
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
-
-### Cast
-
-```shell
-$ cast <subcommand>
-```
-
-### Help
-
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
-```
+- [PredeployAddresses.sol](src/libraries/PredeployAddresses.sol)
