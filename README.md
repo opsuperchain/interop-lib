@@ -7,7 +7,7 @@ Subset of [interoperability](https://specs.optimism.io/interop/overview.html) re
 To install with [**Foundry**](https://github.com/foundry-rs/foundry):
 
 ```sh
-forge install vectorized/solady
+forge install ethereum-optimism/interop-lib
 ```
 
 ## Interfaces
