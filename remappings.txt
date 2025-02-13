@@ -1,1 +1,2 @@
 @openzeppelin-contracts/=vendor/openzeppelin-contracts/
+@solady/=lib/solady/src/
