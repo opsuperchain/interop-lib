@@ -17,10 +17,15 @@ library CrossDomainMessageLib {
         }
     }
 
-    function requireCrossDomainCallback() internal view {
+    function requireCallerIsCrossDomainMessenger() internal view {
         if (msg.sender != address(PredeployAddresses.L2_TO_L2_CROSS_DOMAIN_MESSENGER)) {
             revert CallerNotL2ToL2CrossDomainMessenger();
         }
+    }
+
+    function requireCrossDomainCallback() internal view {
+        requireCallerIsCrossDomainMessenger();
+
         if (
             IL2ToL2CrossDomainMessenger(PredeployAddresses.L2_TO_L2_CROSS_DOMAIN_MESSENGER).crossDomainMessageSender()
                 != address(this)
