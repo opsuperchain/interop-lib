@@ -5,8 +5,11 @@ import {PredeployAddresses} from "./PredeployAddresses.sol";
 import {IL2ToL2CrossDomainMessenger} from "../interfaces/IL2ToL2CrossDomainMessenger.sol";
 
 library CrossDomainMessageLib {
+    /// @notice The error emitted when a dependent message has not been relayed.
     error DependentMessageNotSuccessful(bytes32 msgHash);
-    error CallerNotL2ToL2CrossDomainMessenger();
+    /// @notice The error emitted when the caller is not the L2toL2CrossDomainMessenger.
+    error CallerNotL2toL2CrossDomainMessenger();
+    /// @notice The error emitted when the original sender of the cross-domain message is not this same address as this contract.
     error InvalidCrossDomainSender();
 
     /// @notice Checks if the msgHash has been relayed and reverts with a special error signature
@@ -23,12 +26,18 @@ library CrossDomainMessageLib {
         }
     }
 
+    /// @notice Checks if the caller is the L2toL2CrossDomainMessenger. It is important to use this check
+    /// on cross-domain messages that should only be relayed through the L2toL2CrossDomainMessenger.
     function requireCallerIsCrossDomainMessenger() internal view {
         if (msg.sender != address(PredeployAddresses.L2_TO_L2_CROSS_DOMAIN_MESSENGER)) {
-            revert CallerNotL2ToL2CrossDomainMessenger();
+            revert CallerNotL2toL2CrossDomainMessenger();
         }
     }
 
+    /// @notice While relaying a message through the L2toL2CrossDomainMessenger, checks
+    /// that the original sender of the cross-domain message is this same address.
+    /// It is important to use this check on cross-domain messages that should only be
+    /// sent and relayed by the same contract on different chains.
     function requireCrossDomainCallback() internal view {
         requireCallerIsCrossDomainMessenger();
 
