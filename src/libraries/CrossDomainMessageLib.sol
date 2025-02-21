@@ -5,8 +5,8 @@ import {PredeployAddresses} from "./PredeployAddresses.sol";
 import {IL2ToL2CrossDomainMessenger} from "../interfaces/IL2ToL2CrossDomainMessenger.sol";
 
 library CrossDomainMessageLib {
-    /// @notice The error emitted when a dependent message has not been relayed.
-    error DependentMessageNotSuccessful(bytes32 msgHash);
+    /// @notice The error emitted when a required message has not been relayed.
+    error RequiredMessageNotSuccessful(bytes32 msgHash);
     /// @notice The error emitted when the caller is not the L2toL2CrossDomainMessenger.
     error CallerNotL2toL2CrossDomainMessenger();
     /// @notice The error emitted when the original sender of the cross-domain message is not this same address as this contract.
@@ -16,13 +16,13 @@ library CrossDomainMessageLib {
     /// that the auto-relayer performs special handling on if the msgHash has not been relayed.
     /// If the auto-relayer encounters this error, it will parse the msgHash and wait for the
     /// msgHash to be relayed before relaying the message that calls this function. This ensures
-    /// that any dependent message is relayed before the message that depends on it.
+    /// that any required message is relayed before the message that depends on it.
     /// @param msgHash The hash of the message to check if it has been relayed.
     function requireMessageSuccess(bytes32 msgHash) internal view {
         if (
             !IL2ToL2CrossDomainMessenger(PredeployAddresses.L2_TO_L2_CROSS_DOMAIN_MESSENGER).successfulMessages(msgHash)
         ) {
-            revert DependentMessageNotSuccessful(msgHash);
+            revert RequiredMessageNotSuccessful(msgHash);
         }
     }
 
