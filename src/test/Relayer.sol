@@ -29,11 +29,9 @@ abstract contract Relayer is CommonBase {
     uint256 chainB;
 
     /// @notice Mapping from chain ID to fork ID
-    /// @dev Used to select the correct fork when relaying messages
     mapping(uint256 => uint256) public forkIdByChainId;
 
     /// @notice Mapping from fork ID to chain ID
-    /// @dev Used to select the correct chain when relaying messages
     mapping(uint256 => uint256) public chainIdByForkId;
 
     /**
