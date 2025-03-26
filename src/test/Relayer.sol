@@ -32,6 +32,10 @@ abstract contract Relayer is CommonBase {
     /// @dev Used to select the correct fork when relaying messages
     mapping(uint256 => uint256) public forkIdByChainId;
 
+    /// @notice Mapping from fork ID to chain ID
+    /// @dev Used to select the correct chain when relaying messages
+    mapping(uint256 => uint256) public chainIdByForkId;
+
     /**
      * @notice Constructor that sets up the test environment with two chain forks
      * @dev Creates forks for two L2 chains and maps their chain IDs to fork IDs
@@ -46,9 +50,11 @@ abstract contract Relayer is CommonBase {
 
         vm.selectFork(chainA);
         forkIdByChainId[block.chainid] = chainA;
+        chainIdByForkId[chainA] = block.chainid;
 
         vm.selectFork(chainB);
         forkIdByChainId[block.chainid] = chainB;
+        chainIdByForkId[chainB] = block.chainid;
     }
 
     /**
