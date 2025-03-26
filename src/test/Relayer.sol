@@ -2,13 +2,13 @@
 pragma solidity ^0.8.0;
 
 import {Vm} from "forge-std/Vm.sol";
+import {CommonBase} from "forge-std/Base.sol";
+
 import {IL2ToL2CrossDomainMessenger, Identifier} from "../interfaces/IL2ToL2CrossDomainMessenger.sol";
 import {ICrossL2Inbox} from "../interfaces/ICrossL2Inbox.sol";
 import {PredeployAddresses} from "../libraries/PredeployAddresses.sol";
-import {console} from "forge-std/console.sol";
-import {CommonBase} from "forge-std/Base.sol";
-import {VmSafe} from "forge-std/Vm.sol";
 
+import {CrossDomainMessageLib} from "../libraries/CrossDomainMessageLib.sol";
 /**
  * @title Relayer
  * @notice Abstract contract that simulates cross-chain message relaying between L2 chains
@@ -16,6 +16,7 @@ import {VmSafe} from "forge-std/Vm.sol";
  *      by creating forks of two L2 chains and relaying messages between them.
  *      It captures SentMessage events using vm.recordLogs() and vm.getRecordedLogs() and relays them to their destination chains.
  */
+
 abstract contract Relayer is CommonBase {
     /// @notice Reference to the L2ToL2CrossDomainMessenger contract
     IL2ToL2CrossDomainMessenger messenger =
@@ -91,7 +92,7 @@ abstract contract Relayer is CommonBase {
             selectForkByChainId(destination);
 
             // warm slot
-            bytes32 slot = ICrossL2Inbox(PredeployAddresses.CROSS_L2_INBOX).calculateChecksum(id, keccak256(payload));
+            bytes32 slot = CrossDomainMessageLib.calculateChecksum(id, keccak256(payload));
             vm.load(PredeployAddresses.CROSS_L2_INBOX, slot);
 
             // relay message
