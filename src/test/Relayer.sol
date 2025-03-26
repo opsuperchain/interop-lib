@@ -84,12 +84,12 @@ abstract contract Relayer is CommonBase {
             Identifier memory id = Identifier(
                 PredeployAddresses.L2_TO_L2_CROSS_DOMAIN_MESSENGER, block.number, i, block.timestamp, block.chainid
             );
-            bytes32 slot = ICrossL2Inbox(PredeployAddresses.CROSS_L2_INBOX).calculateChecksum(id, keccak256(payload));
             uint256 destination = uint256(log.topics[1]);
 
             selectForkByChainId(destination);
 
             // warm slot
+            bytes32 slot = ICrossL2Inbox(PredeployAddresses.CROSS_L2_INBOX).calculateChecksum(id, keccak256(payload));
             vm.load(PredeployAddresses.CROSS_L2_INBOX, slot);
 
             // relay message
