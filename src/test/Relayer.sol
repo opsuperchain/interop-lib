@@ -11,7 +11,6 @@ import {VmSafe} from "forge-std/Vm.sol";
 
 /**
  * @title Relayer
- * @author Optimism
  * @notice Abstract contract that simulates cross-chain message relaying between L2 chains
  * @dev This contract is designed for testing cross-chain messaging in a local environment
  *      by creating forks of two L2 chains and relaying messages between them.
