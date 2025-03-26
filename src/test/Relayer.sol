@@ -17,8 +17,6 @@ import {VmSafe} from "forge-std/Vm.sol";
  *      It captures SentMessage events using vm.recordLogs() and vm.getRecordedLogs() and relays them to their destination chains.
  */
 abstract contract Relayer is CommonBase {
-    // Vm internal constant vm = Vm(address(uint160(uint256(keccak256("hevm cheat code")))));
-
     /// @notice Reference to the L2ToL2CrossDomainMessenger contract
     IL2ToL2CrossDomainMessenger messenger =
         IL2ToL2CrossDomainMessenger(PredeployAddresses.L2_TO_L2_CROSS_DOMAIN_MESSENGER);
