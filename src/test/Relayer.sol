@@ -86,19 +86,20 @@ abstract contract Relayer is CommonBase {
             // Skip logs that aren't SentMessage events
             if (log.topics[0] != keccak256("SentMessage(uint256,address,uint256,address,bytes)")) continue;
 
-            bytes memory payload = constructMessagePayload(log);
-
-            // identifier is spoofed because recorded log does not capture block number that the log was emitted on.
-            Identifier memory id = Identifier(log.emitter, block.number, i, block.timestamp, block.chainid);
+            // Get message destination chain id and select fork
             uint256 destination = uint256(log.topics[1]);
-
             selectForkByChainId(destination);
 
-            // warm slot
+            // Spoof the block number, log index, and timestamp on the identifier because the
+            // recorded log does not capture the block that the log was emitted on.
+            Identifier memory id = Identifier(log.emitter, block.number, i, block.timestamp, block.chainid);
+            bytes memory payload = constructMessagePayload(log);
+
+            // Warm slot
             bytes32 slot = CrossDomainMessageLib.calculateChecksum(id, keccak256(payload));
             vm.load(PredeployAddresses.CROSS_L2_INBOX, slot);
 
-            // relay message
+            // Relay message
             messenger.relayMessage(id, payload);
         }
 
