@@ -89,9 +89,7 @@ abstract contract Relayer is CommonBase {
             bytes memory payload = constructMessagePayload(log);
 
             // identifier is spoofed because recorded log does not capture block number that the log was emitted on.
-            Identifier memory id = Identifier(
-                PredeployAddresses.L2_TO_L2_CROSS_DOMAIN_MESSENGER, block.number, i, block.timestamp, block.chainid
-            );
+            Identifier memory id = Identifier(log.emitter, block.number, i, block.timestamp, block.chainid);
             uint256 destination = uint256(log.topics[1]);
 
             selectForkByChainId(destination);
