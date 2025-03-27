@@ -105,42 +105,20 @@ abstract contract Relayer is CommonBase {
     }
 
     /**
-     * @notice Constructs a message payload from a log
+     * @notice Constructs a message payload from a log using pure Solidity
      * @param log The log containing the SentMessage event data
      * @return A bytes array containing the reconstructed message payload
-     * @dev This function reconstructs the original message payload by:
-     *      1. Copying all topics (32 bytes each)
-     *      2. Appending the log data
-     *      The resulting payload is used for message relay
      */
     function constructMessagePayload(Vm.Log memory log) internal pure returns (bytes memory) {
-        // Calculate total length: each topic is 32 bytes + data length
-        uint256 totalLength = (log.topics.length * 32) + log.data.length;
-        bytes memory payload = new bytes(totalLength);
-        uint256 cursor = 0;
+        bytes memory payload = new bytes(0);
 
-        // Copy each topic (32 bytes each)
+        // Append each topic (32 bytes each)
         for (uint256 i = 0; i < log.topics.length; i++) {
-            bytes32 topic = log.topics[i];
-            assembly {
-                let payloadPtr := add(add(payload, 32), cursor) // 32 is to skip length prefix
-                mstore(payloadPtr, topic)
-            }
-            cursor += 32;
+            payload = abi.encodePacked(payload, log.topics[i]);
         }
 
-        // Copy the data
-        bytes memory logData = log.data; // Create a local variable to use in assembly
-        assembly {
-            let dataLength := mload(logData)
-            if gt(dataLength, 0) {
-                let payloadPtr := add(add(payload, 32), cursor) // 32 is to skip length prefix
-                let dataPtr := add(logData, 32) // 32 is to skip length prefix
-                for { let i := 0 } lt(i, dataLength) { i := add(i, 32) } {
-                    mstore(add(payloadPtr, i), mload(add(dataPtr, i)))
-                }
-            }
-        }
+        // Append the data
+        payload = abi.encodePacked(payload, log.data);
 
         return payload;
     }
