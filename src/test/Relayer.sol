@@ -77,6 +77,7 @@ abstract contract Relayer is CommonBase {
      *      5. Relays the message to the destination
      */
     function relayAllMessages() public {
+        uint256 originalFork = vm.activeFork();
         Vm.Log[] memory allLogs = vm.getRecordedLogs();
 
         for (uint256 i = 0; i < allLogs.length; i++) {
@@ -102,6 +103,8 @@ abstract contract Relayer is CommonBase {
             // relay message
             messenger.relayMessage(id, payload);
         }
+
+        vm.selectFork(originalFork);
     }
 
     /**
