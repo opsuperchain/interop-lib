@@ -82,14 +82,25 @@ abstract contract Relayer is CommonBase {
      *      5. Relays the message to the destination
      */
     function relayAllMessages() public returns (RelayedMessage[] memory messages_) {
-        uint256 originalFork = vm.activeFork();
-        uint256 sourceChain = chainIdByForkId[originalFork];
-        Vm.Log[] memory allLogs = vm.getRecordedLogs();
+        messages_ = relayMessages(vm.getRecordedLogs(), chainIdByForkId[vm.activeFork()]);
+    }
 
-        messages_ = new RelayedMessage[](allLogs.length);
+    /**
+     * Use this instead of relayAllMessages if you want to relay a subset of messages and need to have control over when
+     * vm.getRecordedLogs() is called.
+     */
+    function relayMessages(Vm.Log[] memory logs, uint256 sourceChainId)
+        public
+        returns (RelayedMessage[] memory messages_)
+    {
+        uint256 originalFork = vm.activeFork();
+        vm.selectFork(selectForkByChainId(sourceChainId));
+
+        messages_ = new RelayedMessage[](logs.length);
         uint256 messageCount = 0;
-        for (uint256 i = 0; i < allLogs.length; i++) {
-            Vm.Log memory log = allLogs[i];
+
+        for (uint256 i = 0; i < logs.length; i++) {
+            Vm.Log memory log = logs[i];
 
             // Skip logs that aren't SentMessage events
             if (log.topics[0] != keccak256("SentMessage(uint256,address,uint256,address,bytes)")) continue;
@@ -100,7 +111,7 @@ abstract contract Relayer is CommonBase {
 
             // Spoof the block number, log index, and timestamp on the identifier because the
             // recorded log does not capture the block that the log was emitted on.
-            Identifier memory id = Identifier(log.emitter, block.number, i, block.timestamp, sourceChain);
+            Identifier memory id = Identifier(log.emitter, block.number, i, block.timestamp, sourceChainId);
             bytes memory payload = constructMessagePayload(log);
 
             // Warm slot
@@ -116,7 +127,7 @@ abstract contract Relayer is CommonBase {
         }
 
         // If we didn't use all allocated slots, create a properly sized array
-        if (messageCount < allLogs.length) {
+        if (messageCount < logs.length) {
             // Create a new array of the correct size
             RelayedMessage[] memory resizedMessages = new RelayedMessage[](messageCount);
             for (uint256 i = 0; i < messageCount; i++) {
