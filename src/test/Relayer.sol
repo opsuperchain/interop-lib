@@ -9,6 +9,12 @@ import {ICrossL2Inbox} from "../interfaces/ICrossL2Inbox.sol";
 import {PredeployAddresses} from "../libraries/PredeployAddresses.sol";
 
 import {CrossDomainMessageLib} from "../libraries/CrossDomainMessageLib.sol";
+
+struct RelayedMessage {
+    Identifier id;
+    bytes payload;
+}
+
 /**
  * @title Relayer
  * @notice Abstract contract that simulates cross-chain message relaying between L2 chains
@@ -16,7 +22,6 @@ import {CrossDomainMessageLib} from "../libraries/CrossDomainMessageLib.sol";
  *      by creating forks of two L2 chains and relaying messages between them.
  *      It captures SentMessage events using vm.recordLogs() and vm.getRecordedLogs() and relays them to their destination chains.
  */
-
 abstract contract Relayer is CommonBase {
     /// @notice Reference to the L2ToL2CrossDomainMessenger contract
     IL2ToL2CrossDomainMessenger messenger =
@@ -67,7 +72,7 @@ abstract contract Relayer is CommonBase {
     }
 
     /**
-     * @notice Relays all pending cross-chain messages
+     * @notice Relays all pending cross-chain messages. All messages must have the same source chain.
      * @dev Filters logs for SentMessage events and relays them to their destination chains
      *      This function handles the entire relay process:
      *      1. Captures all SentMessage events
@@ -76,10 +81,13 @@ abstract contract Relayer is CommonBase {
      *      4. Selects the destination chain fork
      *      5. Relays the message to the destination
      */
-    function relayAllMessages() public {
+    function relayAllMessages() public returns (RelayedMessage[] memory messages_) {
         uint256 originalFork = vm.activeFork();
+        uint256 sourceChain = chainIdByForkId[originalFork];
         Vm.Log[] memory allLogs = vm.getRecordedLogs();
 
+        messages_ = new RelayedMessage[](allLogs.length);
+        uint256 messageCount = 0;
         for (uint256 i = 0; i < allLogs.length; i++) {
             Vm.Log memory log = allLogs[i];
 
@@ -92,7 +100,7 @@ abstract contract Relayer is CommonBase {
 
             // Spoof the block number, log index, and timestamp on the identifier because the
             // recorded log does not capture the block that the log was emitted on.
-            Identifier memory id = Identifier(log.emitter, block.number, i, block.timestamp, block.chainid);
+            Identifier memory id = Identifier(log.emitter, block.number, i, block.timestamp, sourceChain);
             bytes memory payload = constructMessagePayload(log);
 
             // Warm slot
@@ -101,6 +109,20 @@ abstract contract Relayer is CommonBase {
 
             // Relay message
             messenger.relayMessage(id, payload);
+
+            // Add to messages array (using index assignment instead of push)
+            messages_[messageCount] = RelayedMessage({id: id, payload: payload});
+            messageCount++;
+        }
+
+        // If we didn't use all allocated slots, create a properly sized array
+        if (messageCount < allLogs.length) {
+            // Create a new array of the correct size
+            RelayedMessage[] memory resizedMessages = new RelayedMessage[](messageCount);
+            for (uint256 i = 0; i < messageCount; i++) {
+                resizedMessages[i] = messages_[i];
+            }
+            messages_ = resizedMessages;
         }
 
         vm.selectFork(originalFork);
