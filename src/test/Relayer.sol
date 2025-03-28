@@ -86,7 +86,7 @@ abstract contract Relayer is CommonBase {
     }
 
     /**
-     * Use this instead of relayAllMessages if you want to relay a subset of messages and need to have control over when
+     * Use this instead of relayAllMessages if you want to relay a subset of logs and need to have control over when
      * vm.getRecordedLogs() is called.
      */
     function relayMessages(Vm.Log[] memory logs, uint256 sourceChainId)
@@ -138,14 +138,37 @@ abstract contract Relayer is CommonBase {
         vm.selectFork(originalFork);
     }
 
-    function relayPromises(Promise p, uint256 sourceChainId) public returns (RelayedMessage[] memory messages_) {
-        vm.selectFork(selectForkByChainId(sourceChainId));
-        Vm.Log[] memory allLogs = vm.getRecordedLogs();
+    /**
+     * @notice Relays all promise callbacks for messages received on the source chain
+     * @dev Filters logs for RelayedMessage events and dispatches their callbacks through the Promise contract
+     *      This function handles the promise callback relay process:
+     *      1. Selects the source chain fork
+     *      2. Gets all recorded logs
+     *      3. Filters for RelayedMessage events
+     *      4. Constructs message payload and identifier
+     *      5. Dispatches callbacks through the Promise contract
+     * @param p The Promise contract instance to dispatch callbacks through
+     * @param sourceChainId The chain ID where the messages originated
+     * @return messages_ Array of RelayedMessage structs containing the message IDs and payloads that were processed
+     */
+    function relayAllPromises(Promise p, uint256 sourceChainId) public returns (RelayedMessage[] memory messages_) {
+        messages_ = relayPromises(vm.getRecordedLogs(), p, sourceChainId);
+    }
 
-        messages_ = new RelayedMessage[](allLogs.length);
+    /**
+     * Use this instead of relayAllPromises if you want to relay a subset of logs and need to have control over when
+     * vm.getRecordedLogs() is called.
+     */
+    function relayPromises(Vm.Log[] memory logs, Promise p, uint256 sourceChainId)
+        public
+        returns (RelayedMessage[] memory messages_)
+    {
+        vm.selectFork(selectForkByChainId(sourceChainId));
+
+        messages_ = new RelayedMessage[](logs.length);
         uint256 messageCount = 0;
-        for (uint256 i = 0; i < allLogs.length; i++) {
-            Vm.Log memory log = allLogs[i];
+        for (uint256 i = 0; i < logs.length; i++) {
+            Vm.Log memory log = logs[i];
             if (log.topics[0] != keccak256("RelayedMessage(bytes32,bytes)")) continue;
 
             bytes memory payload = constructMessagePayload(log);
@@ -159,7 +182,7 @@ abstract contract Relayer is CommonBase {
         }
 
         // If we didn't use all allocated slots, create a properly sized array
-        if (messageCount < allLogs.length) {
+        if (messageCount < logs.length) {
             // Create a new array of the correct size
             RelayedMessage[] memory resizedMessages = new RelayedMessage[](messageCount);
             for (uint256 i = 0; i < messageCount; i++) {
