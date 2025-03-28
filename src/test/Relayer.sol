@@ -7,7 +7,7 @@ import {CommonBase} from "forge-std/Base.sol";
 import {IL2ToL2CrossDomainMessenger, Identifier} from "../interfaces/IL2ToL2CrossDomainMessenger.sol";
 import {ICrossL2Inbox} from "../interfaces/ICrossL2Inbox.sol";
 import {PredeployAddresses} from "../libraries/PredeployAddresses.sol";
-
+import {Promise} from "../Promise.sol";
 import {CrossDomainMessageLib} from "../libraries/CrossDomainMessageLib.sol";
 
 struct RelayedMessage {
@@ -126,6 +126,37 @@ abstract contract Relayer is CommonBase {
         }
 
         vm.selectFork(originalFork);
+    }
+
+    function relayPromises(Promise p, uint256 sourceChainId) public returns (RelayedMessage[] memory messages_) {
+        vm.selectFork(selectForkByChainId(sourceChainId));
+        Vm.Log[] memory allLogs = vm.getRecordedLogs();
+
+        messages_ = new RelayedMessage[](allLogs.length);
+        uint256 messageCount = 0;
+        for (uint256 i = 0; i < allLogs.length; i++) {
+            Vm.Log memory log = allLogs[i];
+            if (log.topics[0] != keccak256("RelayedMessage(bytes32,bytes)")) continue;
+
+            bytes memory payload = constructMessagePayload(log);
+            Identifier memory id = Identifier(log.emitter, block.number, 0, block.timestamp, sourceChainId);
+
+            p.dispatchCallbacks(id, payload);
+
+            // Add to messages array (using index assignment instead of push)
+            messages_[messageCount] = RelayedMessage({id: id, payload: payload});
+            messageCount++;
+        }
+
+        // If we didn't use all allocated slots, create a properly sized array
+        if (messageCount < allLogs.length) {
+            // Create a new array of the correct size
+            RelayedMessage[] memory resizedMessages = new RelayedMessage[](messageCount);
+            for (uint256 i = 0; i < messageCount; i++) {
+                resizedMessages[i] = messages_[i];
+            }
+            messages_ = resizedMessages;
+        }
     }
 
     /**
