@@ -94,7 +94,6 @@ abstract contract Relayer is CommonBase {
         returns (RelayedMessage[] memory messages_)
     {
         uint256 originalFork = vm.activeFork();
-        vm.selectFork(selectForkByChainId(sourceChainId));
 
         messages_ = new RelayedMessage[](logs.length);
         uint256 messageCount = 0;
