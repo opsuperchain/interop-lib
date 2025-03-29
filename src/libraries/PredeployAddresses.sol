@@ -22,4 +22,7 @@ library PredeployAddresses {
 
     /// @notice Address of the SuperchainTokenBridge predeploy.
     address internal constant SUPERCHAIN_TOKEN_BRIDGE = 0x4200000000000000000000000000000000000028;
+
+    /// @notice Address of Promise.sol. This is likely to change.
+    address internal constant PROMISE = 0xFcdC08d2DFf80DCDf1e954c4759B3316BdE86464;
 }
