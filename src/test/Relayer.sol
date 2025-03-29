@@ -6,8 +6,9 @@ import {CommonBase} from "forge-std/Base.sol";
 
 import {IL2ToL2CrossDomainMessenger, Identifier} from "../interfaces/IL2ToL2CrossDomainMessenger.sol";
 import {ICrossL2Inbox} from "../interfaces/ICrossL2Inbox.sol";
+import {IPromise} from "../interfaces/IPromise.sol";
+
 import {PredeployAddresses} from "../libraries/PredeployAddresses.sol";
-import {Promise} from "../Promise.sol";
 import {CrossDomainMessageLib} from "../libraries/CrossDomainMessageLib.sol";
 
 struct RelayedMessage {
@@ -151,7 +152,7 @@ abstract contract Relayer is CommonBase {
      * @param sourceChainId The chain ID where the messages originated
      * @return messages_ Array of RelayedMessage structs containing the message IDs and payloads that were processed
      */
-    function relayAllPromises(Promise p, uint256 sourceChainId) public returns (RelayedMessage[] memory messages_) {
+    function relayAllPromises(IPromise p, uint256 sourceChainId) public returns (RelayedMessage[] memory messages_) {
         messages_ = relayPromises(vm.getRecordedLogs(), p, sourceChainId);
     }
 
@@ -159,7 +160,7 @@ abstract contract Relayer is CommonBase {
      * Use this instead of relayAllPromises if you want to relay a subset of logs and need to have control over when
      * vm.getRecordedLogs() is called.
      */
-    function relayPromises(Vm.Log[] memory logs, Promise p, uint256 sourceChainId)
+    function relayPromises(Vm.Log[] memory logs, IPromise p, uint256 sourceChainId)
         public
         returns (RelayedMessage[] memory messages_)
     {
