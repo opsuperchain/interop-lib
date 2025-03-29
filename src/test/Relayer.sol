@@ -174,6 +174,10 @@ abstract contract Relayer is CommonBase {
             bytes memory payload = constructMessagePayload(log);
             Identifier memory id = Identifier(log.emitter, block.number, 0, block.timestamp, sourceChainId);
 
+            // Warm slot
+            bytes32 slot = CrossDomainMessageLib.calculateChecksum(id, keccak256(payload));
+            vm.load(PredeployAddresses.CROSS_L2_INBOX, slot);
+
             p.dispatchCallbacks(id, payload);
 
             // Add to messages array (using index assignment instead of push)
