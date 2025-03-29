@@ -36,6 +36,9 @@ interface IPromise {
     /// @notice attach a continuation dependent only on the return value of the remote message
     function then(bytes32 _msgHash, bytes4 _selector) external;
 
+    /// @notice attach a continuation dependent on the return value and some additional saved context
+    function then(bytes32 _msgHash, bytes4 _selector, bytes calldata _context) external;
+
     /// @notice invoke continuations present on the completion of a remote message. for now this requires all
     ///         callbacks to be dispatched in a single call. A failing callback will halt the entire process.
     function dispatchCallbacks(Identifier calldata _id, bytes calldata _payload) external payable;
