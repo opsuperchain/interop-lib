@@ -14,8 +14,8 @@ library PredeployAddresses {
     /// @notice Address of the L2ToL2CrossDomainMessenger predeploy.
     address internal constant L2_TO_L2_CROSS_DOMAIN_MESSENGER = 0x4200000000000000000000000000000000000023;
 
-    /// @notice Address of the SuperchainWETH predeploy.
-    address internal constant SUPERCHAIN_WETH = 0x4200000000000000000000000000000000000024;
+    /// @notice Address of the SuperchainETHBridge predeploy.
+    address internal constant SUPERCHAIN_ETH_BRIDGE = 0x4200000000000000000000000000000000000024;
 
     /// @notice Address of the ETHLiquidity predeploy.
     address internal constant ETH_LIQUIDITY = 0x4200000000000000000000000000000000000025;
