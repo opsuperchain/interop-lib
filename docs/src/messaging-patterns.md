@@ -39,19 +39,19 @@ Here is an example of how to use this pattern (referenced from the [superchain-s
 
         if (msg.value != totalAmount) revert IncorrectValue();
 
-        bytes32 sendWethMsgHash = superchainWeth.sendETH{value: totalAmount}(address(this), _destinationChainId);
+        bytes32 sendEthMsgHash = superchainEthBridge.sendETH{value: totalAmount}(address(this), _destinationChainId);
 
         return l2ToL2CrossDomainMessenger.sendMessage(
-            _destinationChainId, address(this), abi.encodeCall(this.relay, (sendWethMsgHash, _sends))
+            _destinationChainId, address(this), abi.encodeCall(this.relay, (sendEthMsgHash, _sends))
         );
     }
 
-    function relay(bytes32 _sendWethMsgHash, Send[] calldata _sends) public {
+    function relay(bytes32 _sendEthMsgHash, Send[] calldata _sends) public {
         CrossDomainMessageLib.requireCrossDomainCallback();
         // CrossDomainMessageLib.requireMessageSuccess uses a special error signature that the
-        // auto-relayer performs special handling on. The auto-relayer parses the _sendWethMsgHash
-        // and waits for the _sendWethMsgHash to be relayed before relaying this message.
-        CrossDomainMessageLib.requireMessageSuccess(_sendWethMsgHash);
+        // auto-relayer performs special handling on. The auto-relayer parses the _sendEthMsgHash
+        // and waits for the _sendEthMsgHash to be relayed before relaying this message.
+        CrossDomainMessageLib.requireMessageSuccess(_sendEthMsgHash);
 
         for (uint256 i; i < _sends.length; i++) {
             address to = _sends[i].to;

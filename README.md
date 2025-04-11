@@ -43,8 +43,7 @@ import {PredeployAddresses} from "@interop-lib/libraries/PredeployAddresses.sol"
 - [IL2ToL2CrossDomainMessenger.sol](src/interfaces/IL2ToL2CrossDomainMessenger.sol)
 - [ISemver.sol](src/interfaces/ISemver.sol)
 - [ISuperchainTokenBridge.sol](src/interfaces/ISuperchainTokenBridge.sol)
-- [ISuperchainWETH.sol](src/interfaces/ISuperchainWETH.sol)
-- [IWETH98.sol](src/interfaces/IWETH98.sol)
+- [ISuperchainETHBridge.sol](src/interfaces/ISuperchainETHBridge.sol)
 
 ### Libraries
 
