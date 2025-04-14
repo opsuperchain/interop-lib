@@ -5,7 +5,7 @@ libs = ["lib"]
 
 remappings = [
   "@openzeppelin-contracts/=vendor/openzeppelin-contracts/",
-  "@solady/=lib/solady/src/"
+  '@solady-v0.0.245/=vendor/solady-v0.0.245/'
 ]
 
 # See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
