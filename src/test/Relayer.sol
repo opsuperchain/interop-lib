@@ -28,6 +28,9 @@ abstract contract Relayer is CommonBase {
     IL2ToL2CrossDomainMessenger messenger =
         IL2ToL2CrossDomainMessenger(PredeployAddresses.L2_TO_L2_CROSS_DOMAIN_MESSENGER);
 
+    /// @notice Array of fork IDs
+    uint256[] public forkIds;
+
     /// @notice Mapping from chain ID to fork ID
     mapping(uint256 => uint256) public forkIdByChainId;
 
@@ -44,6 +47,7 @@ abstract contract Relayer is CommonBase {
 
         for (uint256 i = 0; i < _chainRpcs.length; i++) {
             uint256 forkId = vm.createFork(_chainRpcs[i]);
+            forkIds.push(forkId);
             forkIdByChainId[block.chainid] = forkId;
             chainIdByForkId[forkId] = block.chainid;
         }
