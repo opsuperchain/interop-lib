@@ -43,22 +43,16 @@ abstract contract Relayer is CommonBase {
     /**
      * @notice Constructor that sets up the test environment with two chain forks
      * @dev Creates forks for two L2 chains and maps their chain IDs to fork IDs
-     * @param _chainARpc RPC URL for the first chain
-     * @param _chainBRpc RPC URL for the second chain
+     * @param _chainRpcs RPC URLs for the chains
      */
-    constructor(string memory _chainARpc, string memory _chainBRpc) {
+    constructor(string[] memory _chainRpcs) {
         vm.recordLogs();
 
-        chainA = vm.createFork(_chainARpc);
-        chainB = vm.createFork(_chainBRpc);
-
-        vm.selectFork(chainA);
-        forkIdByChainId[block.chainid] = chainA;
-        chainIdByForkId[chainA] = block.chainid;
-
-        vm.selectFork(chainB);
-        forkIdByChainId[block.chainid] = chainB;
-        chainIdByForkId[chainB] = block.chainid;
+        for (uint256 i = 0; i < _chainRpcs.length; i++) {
+            uint256 forkId = vm.createFork(_chainRpcs[i]);
+            forkIdByChainId[block.chainid] = forkId;
+            chainIdByForkId[forkId] = block.chainid;
+        }
     }
 
     /**
