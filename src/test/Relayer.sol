@@ -28,12 +28,6 @@ abstract contract Relayer is CommonBase {
     IL2ToL2CrossDomainMessenger messenger =
         IL2ToL2CrossDomainMessenger(PredeployAddresses.L2_TO_L2_CROSS_DOMAIN_MESSENGER);
 
-    /// @notice Fork ID for the first chain
-    uint256 chainA;
-
-    /// @notice Fork ID for the second chain
-    uint256 chainB;
-
     /// @notice Mapping from chain ID to fork ID
     mapping(uint256 => uint256) public forkIdByChainId;
 
