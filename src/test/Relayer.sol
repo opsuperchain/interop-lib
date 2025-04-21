@@ -46,7 +46,7 @@ abstract contract Relayer is CommonBase {
         vm.recordLogs();
 
         for (uint256 i = 0; i < _chainRpcs.length; i++) {
-            uint256 forkId = vm.createFork(_chainRpcs[i]);
+            uint256 forkId = vm.createSelectFork(_chainRpcs[i]);
             forkIds.push(forkId);
             forkIdByChainId[block.chainid] = forkId;
             chainIdByForkId[forkId] = block.chainid;
