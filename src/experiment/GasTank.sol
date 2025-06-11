@@ -8,8 +8,8 @@ import {IL2ToL2CrossDomainMessenger} from "./IL2ToL2CrossDomainMessenger.sol";
 import {Identifier} from "../interfaces/IIdentifier.sol";
 
 // Libraries
-import {Encoding} from "src/libraries/Encoding.sol";
-import {Hashing} from "src/libraries/Hashing.sol";
+import {Encoding} from "../libraries/Encoding.sol";
+import {Hashing} from "../libraries/Hashing.sol";
 import {PredeployAddresses} from "../libraries/PredeployAddresses.sol";
 import {SafeSend} from "../universal/SafeSend.sol";
 
