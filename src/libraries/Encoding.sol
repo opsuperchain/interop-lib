@@ -15,4 +15,18 @@ library Encoding {
         }
         return nonce;
     }
+
+    /// @notice Pulls the version out of a version-encoded nonce.
+    /// @param _nonce Message nonce with version encoded into the first two bytes.
+    /// @return Nonce without encoded version.
+    /// @return Version of the message.
+    function decodeVersionedNonce(uint256 _nonce) internal pure returns (uint240, uint16) {
+        uint240 nonce;
+        uint16 version;
+        assembly {
+            nonce := and(_nonce, 0x0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff)
+            version := shr(240, _nonce)
+        }
+        return (nonce, version);
+    }
 }

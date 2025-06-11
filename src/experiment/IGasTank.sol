@@ -2,7 +2,7 @@
 pragma solidity ^0.8.25;
 
 import {Identifier} from "../interfaces/IIdentifier.sol";
-import {IL2ToL2CrossDomainMessenger} from "../interfaces/IL2ToL2CrossDomainMessenger.sol";
+import {IL2ToL2CrossDomainMessenger} from "./IL2ToL2CrossDomainMessenger.sol";
 
 interface IGasTank {
     // Structs
@@ -10,19 +10,13 @@ interface IGasTank {
         uint256 timestamp;
         uint256 amount;
     }
-    // Events
 
-    event Flagged(bytes32 indexed rootMsgHash, address indexed gasProvider);
-    event Claimed(
-        bytes32 indexed msgHash,
-        address indexed relayer,
-        address indexed gasProvider,
-        bytes32 rootMsgHash,
-        uint256 amount
-    );
+    // Events
+    event Flagged(bytes32 indexed originMsgHash, address indexed gasProvider);
+    event Claimed(bytes32 indexed originMsgHash, address indexed relayer, address indexed gasProvider, uint256 amount);
     event Deposit(address indexed depositor, uint256 amount);
     event RelayedMessageGasReceipt(
-        bytes32 indexed msgHash, bytes32 indexed rootMsgHash, address indexed relayer, uint256 gasCost
+        bytes32 indexed originMsgHash, address indexed relayer, uint256 gasCost, bytes32[] destinationMessageHashes
     );
     event WithdrawalInitiated(address indexed from, uint256 amount);
     event WithdrawalFinalized(address indexed from, address indexed to, uint256 amount);
@@ -36,6 +30,7 @@ interface IGasTank {
     error AlreadyClaimed();
     error InvalidPayer();
     error WithdrawPending();
+    error InvalidLength();
 
     // Constants
     function MAX_DEPOSIT() external pure returns (uint256);
@@ -53,10 +48,11 @@ interface IGasTank {
     function deposit(address _to) external payable;
     function initiateWithdrawal(uint256 amount) external;
     function finalizeWithdrawal(address to) external;
-    function flag(bytes32 rootMessageHash) external;
+    function flag(bytes32 originMessageHash) external;
+    function relayMessage(Identifier calldata _id, bytes calldata _sentMessage) external;
     function claim(Identifier calldata id, address gasProvider, bytes calldata payload) external;
     function decodeGasReceiptPayload(bytes calldata payload)
         external
         pure
-        returns (bytes32 msgHash, bytes32 rootMsgHash, address relayer, uint256 relayCost);
+        returns (bytes32 originMsgHash, address relayer, uint256 relayCost, bytes32[] calldata destinationMessageHashes);
 }
